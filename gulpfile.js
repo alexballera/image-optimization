@@ -5,15 +5,14 @@ const imageminSvgo = require('imagemin-svgo')
 const imageminOptipng = require('imagemin-optipng')
 const imageminJpegtran = require('imagemin-jpegtran')
 const cache = require('gulp-cache')
+const del = require('del')
 
 const globs = {
-  img: {
-    src: './src/**',
-    dist: './dist'
-  }
+  src: './src/**',
+  dist: './dist'
 }
 gulp.task('images', () => {
-  return gulp.src(globs.img.src)
+  return gulp.src(globs.src)
     .pipe(cache(imagemin({
       optimizationLevel: 7,
       progressive: true,
@@ -31,10 +30,17 @@ gulp.task('images', () => {
         { removeEmptyAttrs: false }
       ]
     })))
-    .pipe(gulp.dest(globs.img.dist))
-})
-gulp.task('watch', () => {
-  gulp.watch(globs.img.src, ['images'])
+    .pipe(gulp.dest(globs.dist))
 })
 
-gulp.task('default', ['images', 'watch'])
+gulp.task('clean', (cb) => {
+  return del(globs.dist, cb)
+})
+
+gulp.task('watch', () => {
+  gulp.watch(globs.src, ['images'])
+})
+
+gulp.task('default', ['clean'], () => {
+  gulp.start('images', 'watch')
+})
